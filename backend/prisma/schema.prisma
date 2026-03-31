@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Place {
+  id        String   @id @default(cuid())
+  name      String
+  latitude  Float
+  longitude Float
+  spaces    Space[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Space {
+  id            String          @id @default(cuid())
+  placeId       String
+  name          String
+  reference     String?
+  capacity      Int
+  description   String?
+  place         Place           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  reservations  Reservation[]
+  telemetry     TelemetrySample[]
+  liveState     SpaceLiveState?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Reservation {
+  id              String   @id @default(cuid())
+  spaceId          String
+  placeId          String?
+  clientEmail      String
+  reservationDate  DateTime
+  startTime        String
+  endTime          String
+  space            Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model TelemetrySample {
+  id          String   @id @default(cuid())
+  spaceId      String
+  placeId      String
+  occupancy    Int
+  co2          Float
+  humidity     Float
+  temperature  Float
+  battery      Float
+  observedAt   DateTime
+  rawPayload   Json
+  space        Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model SpaceLiveState {
+  id          String   @id @default(cuid())
+  spaceId      String   @unique
+  placeId      String
+  occupancy    Int
+  co2          Float
+  humidity     Float
+  temperature  Float
+  battery      Float
+  observedAt   DateTime
+  updatedAt    DateTime @updatedAt
+  space        Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+}

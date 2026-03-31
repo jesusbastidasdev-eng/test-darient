@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: darient-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: darient
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: darient-mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+
+  backend:
+    build:
+      context: ../backend
+    container_name: darient-backend
+    depends_on:
+      - postgres
+      - mqtt
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      API_KEY: dev-api-key
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/darient
+      MQTT_URL: mqtt://mqtt:1883
+      MQTT_TOPIC: telemetry/#
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: darient-frontend
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: http://localhost:3001
+      VITE_API_KEY: dev-api-key
+    ports:
+      - "4173:4173"
+
+volumes:
+  postgres_data:
