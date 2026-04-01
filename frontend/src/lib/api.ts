@@ -10,13 +10,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001
 const API_KEY = import.meta.env.VITE_API_KEY ?? "dev-api-key";
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (init?.body !== undefined && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  headers.set("x-api-key", API_KEY);
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-      ...(init?.headers ?? {})
-    }
+    headers
   });
 
   if (!response.ok) {

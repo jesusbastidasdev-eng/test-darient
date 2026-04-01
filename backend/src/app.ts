@@ -16,7 +16,10 @@ export type AppOptions = {
 
 export async function createApp(options: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
-  await app.register(cors, { origin: true });
+  await app.register(cors, {
+    origin: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+  });
 
   app.decorate("prisma", options.prisma);
   app.decorate("realtimeSubscribers", new Set<(payload: unknown) => void>());
@@ -28,6 +31,15 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
     }
     if (error instanceof ZodError) {
       reply.status(422).send({ message: "Validation error", details: error.issues });
+      return;
+    }
+    if (typeof error === "object" && error !== null && "statusCode" in error) {
+      const statusCode =
+        typeof error.statusCode === "number" && error.statusCode >= 400 ? error.statusCode : 500;
+      const message = "message" in error && typeof error.message === "string"
+        ? error.message
+        : "Internal server error";
+      reply.status(statusCode).send({ message });
       return;
     }
     app.log.error(error);
