@@ -32,8 +32,11 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
-  app.get("/admin/telemetria/stream", async (_request, reply) => {
+  app.get("/admin/telemetria/stream", async (request, reply) => {
     reply.hijack();
+    const origin = typeof request.headers.origin === "string" ? request.headers.origin : "*";
+    reply.raw.setHeader("Access-Control-Allow-Origin", origin);
+    reply.raw.setHeader("Vary", "Origin");
     reply.raw.setHeader("Content-Type", "text/event-stream");
     reply.raw.setHeader("Cache-Control", "no-cache");
     reply.raw.setHeader("Connection", "keep-alive");

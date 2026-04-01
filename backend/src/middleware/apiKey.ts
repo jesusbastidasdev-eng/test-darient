@@ -3,6 +3,11 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../config/env.js";
 
 export async function apiKeyGuard(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  // Let CORS preflight pass through without API-key validation.
+  if (request.method === "OPTIONS") {
+    return;
+  }
+
   const incomingKey = request.headers["x-api-key"];
   const queryKey =
     typeof request.query === "object" && request.query !== null
