@@ -9,6 +9,7 @@ const envSchema = z.object({
   API_KEY: z.string().min(1).default("dev-api-key"),
   DATABASE_URL: z.string().min(1).default("postgresql://postgres:postgres@localhost:5432/darient"),
   MQTT_URL: z.string().default("mqtt://localhost:1883"),
+  // The wildcard topic should be quoted in .env files so dotenv keeps the "#".
   MQTT_TOPIC: z.string().default("telemetry/#")
 });
 

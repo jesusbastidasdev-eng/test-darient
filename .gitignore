@@ -5,9 +5,9 @@ backend/coverage
 backend/*.log
 backend/.env
 backend/.env.local
-backend/prisma/migrations
 frontend/node_modules
 frontend/dist
 frontend/coverage
 frontend/*.log
 frontend/.env
+frontend/*.tsbuildinfo

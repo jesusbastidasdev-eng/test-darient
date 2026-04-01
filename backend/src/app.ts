@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import Fastify, { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
+import { ZodError } from "zod";
 
 import { apiKeyGuard } from "./middleware/apiKey.js";
 import { registerSpaceRoutes } from "./routes/spaces.js";
@@ -25,8 +26,8 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
       reply.status(error.statusCode).send({ message: error.message });
       return;
     }
-    if (typeof error === "object" && error !== null && "issues" in error) {
-      reply.status(422).send({ message: "Validation error", details: (error as Error).message });
+    if (error instanceof ZodError) {
+      reply.status(422).send({ message: "Validation error", details: error.issues });
       return;
     }
     app.log.error(error);

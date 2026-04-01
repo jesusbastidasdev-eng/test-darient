@@ -26,7 +26,7 @@ PORT=3001
 API_KEY=dev-api-key
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/darient
 MQTT_URL=mqtt://localhost:1883
-MQTT_TOPIC=telemetry/#
+MQTT_TOPIC="telemetry/#"
 ```
 
 ### Frontend (`frontend/.env`)
@@ -103,6 +103,7 @@ Todos requieren `x-api-key: <API_KEY>` (el stream SSE acepta tambien `?apiKey=<A
 ## IoT Bonus
 
 - El backend se suscribe a `MQTT_TOPIC` y procesa telemetria (`office/site`, ocupacion, CO2, humedad, temperatura, bateria).
+- En archivos `.env`, el valor con wildcard debe ir entre comillas: `MQTT_TOPIC="telemetry/#"`.
 - Se persiste historico (`TelemetrySample`) y ultimo estado por espacio (`SpaceLiveState`).
 - Se emiten actualizaciones en vivo por SSE hacia el dashboard admin de frontend.
 
@@ -117,7 +118,13 @@ Comando:
 
 - `cd backend && npm test`
 
+Verificacion realizada en este repo:
+
+- `cd backend && npm test`
+- `cd backend && npm run build`
+- `cd frontend && npm run build`
+
 ## Notas para evaluacion
 
-- Este entorno actual no incluye Node/npm instalados, por lo que no fue posible ejecutar `npm install`, `build` ni `test` aqui mismo.
-- El codigo y scripts estan listos para correr apenas se instale Node.js 20+.
+- Se incluye la migracion inicial de Prisma en `backend/prisma/migrations`.
+- El bonus IoT requiere tener el broker MQTT activo antes de publicar telemetria.

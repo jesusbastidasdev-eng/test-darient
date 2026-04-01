@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { EmptyState, ErrorState, LoadingState } from "../components/Status";
@@ -9,13 +9,15 @@ import { TelemetryLiveState } from "../types";
 export function AdminDashboardPage(): JSX.Element {
   const [liveMap, setLiveMap] = useState<Record<string, TelemetryLiveState>>({});
   const telemetryQuery = useQuery({ queryKey: ["telemetry"], queryFn: () => api.listTelemetry(1, 50) });
+  const handleTelemetry = useCallback((event: TelemetryLiveState) => {
+    setLiveMap((prev) => ({
+      ...prev,
+      [event.spaceId]: event
+    }));
+  }, []);
 
   useTelemetryStream({
-    onTelemetry: (event) =>
-      setLiveMap((prev) => ({
-        ...prev,
-        [event.spaceId]: event
-      }))
+    onTelemetry: handleTelemetry
   });
 
   const mergedItems = useMemo(() => {
